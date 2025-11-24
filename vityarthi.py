@@ -2,11 +2,6 @@ import os
 import json
 import logging
 from datetime import datetime
-
-# ==========================================
-# 1. LOGGING & CONFIGURATION
-# ==========================================
-# Setup logging to track system events
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -25,10 +20,6 @@ CONFIG = {
     "DB_FILE": "cinema_data.json",
     "TICKET_DIR": "tickets"
 }
-
-# ==========================================
-# 2. DATA MODELS (Classes)
-# ==========================================
 
 class Seat:
     """Represents a single seat in the theater."""
@@ -57,7 +48,7 @@ class Seat:
 class CinemaHall:
     """Manages the grid of seats and booking logic."""
     def __init__(self):
-        self.seats = {} # Dictionary mapping 'A1' -> Seat Object
+        self.seats = {} 
         self.load_data()
 
     def _initialize_fresh_hall(self):
@@ -86,10 +77,10 @@ class CinemaHall:
         if seat.is_booked:
             return False, f"Seat {seat_id} is already booked by {seat.booked_by}."
         
-        # Perform Booking
+
         seat.is_booked = True
         seat.booked_by = customer_name
-        self.save_data() # Commit to DB
+        self.save_data()
         
         logging.info(f"Booking confirmed: {seat_id} for {customer_name}")
         return True, f"Success! Seat {seat_id} booked for ${seat.price}"
@@ -109,13 +100,12 @@ class CinemaHall:
                 seat = self.seats[seat_id]
                 
                 if seat.is_booked:
-                    symbol = "[ XX ]" # Booked
+                    symbol = "[ XX ]"
                 else:
                     symbol = f"[{seat_id}]" if c < 10 else f"[{seat_id}]"
                 
                 row_display += symbol + " "
-            
-            # Print row with pricing info
+
             price = self.seats[f"{r_char}1"].price
             label = "VIP " if self.seats[f"{r_char}1"].is_vip else "STD "
             print(f"{row_display} | {label} ${price}")
@@ -138,7 +128,6 @@ class CinemaHall:
                 raw_data = json.load(f)
                 self.seats = {}
                 for s_id, props in raw_data.items():
-                    # Reconstruct objects
                     r_id = s_id[0]
                     c_id = int(s_id[1:])
                     seat = Seat(r_id, c_id, props['price'], props['is_vip'])
@@ -150,9 +139,6 @@ class CinemaHall:
             logging.error(f"Error loading database: {e}")
             self._initialize_fresh_hall()
 
-# ==========================================
-# 3. APPLICATION CONTROLLER
-# ==========================================
 
 class BookingApp:
     def __init__(self):
@@ -224,4 +210,5 @@ class BookingApp:
 
 if __name__ == "__main__":
     app = BookingApp()
+
     app.run()
